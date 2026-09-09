@@ -73,8 +73,3 @@
 /cast [shift,@focus,exists,harm,nodead] Kick
 ```
 
-## Публикация в интернет
-
-Подробная инструкция — в файле [DEPLOY.md](DEPLOY.md).
-
-Кратко: загрузите папку на **GitHub Pages**, **Netlify Drop** или **Cloudflare Pages** — сайт статический, бэкенд не нужен.

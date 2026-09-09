@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WoW Macro Builder</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --surface2: #243044;
+      --border: #3d4f6f;
+      --gold: #ffd100;
+      --gold-dim: #b8960a;
+      --text: #e8e6e3;
+      --muted: #8b9cb3;
+      --accent: #0070dd;
+      --success: #1eff00;
+      --danger: #ff4040;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1a2332 0%, #0d1520 100%);
+      border-bottom: 2px solid var(--gold-dim);
+      padding: 1.25rem 2rem;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.25rem; }
+
+    .locale-switch {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .locale-switch label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .locale-btns {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .locale-btns button {
+      padding: 0.4rem 0.85rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: var(--surface2);
+      color: var(--muted);
+      border: none;
+      border-radius: 0;
+    }
+
+    .locale-btns button.active {
+      background: var(--gold);
+      color: #1a1a1a;
+    }
+
+    .locale-btns button:not(.active):hover {
+      color: var(--text);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+
+    .panel h2 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    input[type="text"],
+    select,
+    textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 0.6rem 0.75rem;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    input[type="text"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0, 112, 221, 0.25);
+    }
+
+    textarea {
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 0.85rem;
+      resize: vertical;
+      min-height: 140px;
+      margin-bottom: 0.75rem;
+    }
+
+    .field { margin-bottom: 0.25rem; }
+
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .radio-group label.radio-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.65rem 0.75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--text);
+      margin: 0;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .radio-group label.radio-item:hover {
+      border-color: var(--gold-dim);
+    }
+
+    .radio-group input[type="radio"] {
+      margin-top: 0.2rem;
+      accent-color: var(--gold);
+    }
+
+    .radio-item .desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      display: block;
+      margin-top: 0.15rem;
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 500px) {
+      .checkbox-grid { grid-template-columns: 1fr; }
+    }
+
+    .checkbox-grid label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.65rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--text);
+      margin: 0;
+      font-size: 0.85rem;
+    }
+
+    .checkbox-grid input { accent-color: var(--gold); }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    button {
+      padding: 0.6rem 1.1rem;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter 0.15s, transform 0.1s;
+    }
+
+    button:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: linear-gradient(180deg, var(--gold) 0%, var(--gold-dim) 100%);
+      color: #1a1a1a;
+    }
+
+    .btn-primary:hover { filter: brightness(1.1); }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { border-color: var(--gold-dim); }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .meta .warn { color: var(--danger); }
+    .meta .ok { color: var(--success); }
+
+    .saved-list {
+      max-height: 320px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .saved-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.65rem 0.75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .saved-item .info { flex: 1; min-width: 0; }
+
+    .saved-item .name {
+      font-weight: 600;
+      color: var(--gold);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .saved-item .mode {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .saved-item .actions {
+      display: flex;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    .saved-item button {
+      padding: 0.35rem 0.6rem;
+      font-size: 0.75rem;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 2rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--surface2);
+      border: 1px solid var(--success);
+      color: var(--success);
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .picker-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    @media (max-width: 700px) {
+      .picker-grid { grid-template-columns: 1fr; }
+    }
+
+    .picker-grid select { margin-bottom: 0; }
+
+    .spell-hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 0.5rem 0.75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      min-height: 2.25rem;
+    }
+
+    .spell-hint strong { color: var(--gold); }
+
+    .spell-search { margin-bottom: 0.75rem; }
+    .spell-search input { margin-bottom: 0; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-row">
+      <div>
+        <h1>WoW Macro Builder</h1>
+        <p id="uiSubtitle">Генератор макросов на скиллы с выбором цели: target, focus и комбинированные режимы</p>
+      </div>
+      <div class="locale-switch">
+        <label id="uiLocaleLabel">Клиент игры</label>
+        <div class="locale-btns">
+          <button type="button" id="btnLocaleRu" class="active">RU</button>
+          <button type="button" id="btnLocaleEn">EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <h2 id="uiSpellDb">База скиллов</h2>
+
+      <div class="picker-grid">
+        <div class="field">
+          <label for="classSelect" id="uiClassLabel">Класс</label>
+          <select id="classSelect">
+            <option value="">— выберите класс —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="specSelect" id="uiSpecLabel">Специализация</label>
+          <select id="specSelect" disabled>
+            <option value="">— выберите спек —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="spellSelect" id="uiSpellLabel">Скилл</label>
+          <select id="spellSelect" disabled>
+            <option value="">— выберите скилл —</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="spell-search">
+        <label for="spellFilter" id="uiSearchLabel">Поиск по списку</label>
+        <input type="text" id="spellFilter" placeholder="Фильтр скиллов…" disabled>
+      </div>
+
+      <div class="spell-hint" id="spellHint">Выберите класс и специализацию — список скиллов подставится автоматически.</div>
+
+      <hr class="divider">
+
+      <h2 id="uiSpellSettings">Настройки скилла</h2>
+
+      <div class="field">
+        <label for="spellName" id="uiSpellNameLabel">Название скилла (как в книге заклинаний)</label>
+        <input type="text" id="spellName" placeholder="Или введите вручную" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label id="uiTargetModeLabel">Куда кастовать</label>
+        <div class="radio-group" id="targetMode">
+          <label class="radio-item" data-mode="target">
+            <input type="radio" name="targetMode" value="target" checked>
+            <span class="radio-text"></span>
+          </label>
+          <label class="radio-item" data-mode="focus">
+            <input type="radio" name="targetMode" value="focus">
+            <span class="radio-text"></span>
+          </label>
+          <label class="radio-item" data-mode="focus_target">
+            <input type="radio" name="targetMode" value="focus_target">
+            <span class="radio-text"></span>
+          </label>
+          <label class="radio-item" data-mode="target_focus">
+            <input type="radio" name="targetMode" value="target_focus">
+            <span class="radio-text"></span>
+          </label>
+          <label class="radio-item" data-mode="mouseover">
+            <input type="radio" name="targetMode" value="mouseover">
+            <span class="radio-text"></span>
+          </label>
+          <label class="radio-item" data-mode="player">
+            <input type="radio" name="targetMode" value="player">
+            <span class="radio-text"></span>
+          </label>
+          <label class="radio-item" data-mode="mouseover_focus_target">
+            <input type="radio" name="targetMode" value="mouseover_focus_target">
+            <span class="radio-text"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label id="uiConditionsLabel">Условия (добавляются к каждой цели)</label>
+        <div class="checkbox-grid" id="condGrid">
+          <label><input type="checkbox" id="condExists" checked> <span data-cond="exists"></span></label>
+          <label><input type="checkbox" id="condNodead" checked> <span data-cond="nodead"></span></label>
+          <label><input type="checkbox" id="condHarm"> <span data-cond="harm"></span></label>
+          <label><input type="checkbox" id="condHelp"> <span data-cond="help"></span></label>
+          <label><input type="checkbox" id="condCombat"> <span data-cond="combat"></span></label>
+          <label><input type="checkbox" id="condNoCombat"> <span data-cond="nocombat"></span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="modifier" id="uiModifierLabel">Модификатор клавиш (опционально)</label>
+        <select id="modifier">
+          <option value="" id="modNone">Без модификатора</option>
+          <option value="shift">Shift</option>
+          <option value="ctrl">Ctrl</option>
+          <option value="alt">Alt</option>
+          <option value="shift,ctrl">Shift + Ctrl</option>
+          <option value="shift,alt">Shift + Alt</option>
+          <option value="ctrl,alt">Ctrl + Alt</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label id="uiExtraLabel">Дополнительно</label>
+        <div class="checkbox-grid">
+          <label><input type="checkbox" id="showTooltip" checked> #showtooltip</label>
+          <label><input type="checkbox" id="stopCasting"> /stopcasting</label>
+          <label><input type="checkbox" id="useCastSequence"> /castsequence</label>
+        </div>
+      </div>
+
+      <div class="field" id="sequenceField" style="display:none">
+        <label for="spellSequence" id="uiSequenceLabel">Скиллы через запятую (для castsequence)</label>
+        <input type="text" id="spellSequence" placeholder="Spell1, Spell2, Spell3">
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 id="uiResult">Результат</h2>
+
+      <div class="meta">
+        <span id="charCount">0 символов</span>
+        <span id="charWarn"></span>
+      </div>
+
+      <textarea id="macroOutput" readonly placeholder="Макрос появится здесь…"></textarea>
+
+      <div class="btn-row">
+        <button class="btn-primary" id="btnGenerate">Сгенерировать</button>
+        <button class="btn-secondary" id="btnCopy">Копировать</button>
+        <button class="btn-secondary" id="btnSave">Сохранить в список</button>
+      </div>
+
+      <h2 style="margin-top: 1.5rem;" id="uiSaved">Сохранённые макросы</h2>
+      <div class="saved-list" id="savedList">
+        <div class="empty" id="uiSavedEmpty">Пока пусто — сохраните макрос кнопкой выше</div>
+      </div>
+      <div class="btn-row" style="margin-top: 0.75rem;">
+        <button class="btn-secondary" id="btnExport">Экспорт всех (.txt)</button>
+        <button class="btn-danger" id="btnClear">Очистить список</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast">Скопировано!</div>
+
+  <script src="spells-database.js"></script>
+  <script src="wow-i18n.js"></script>
+  <script>
+    const STORAGE_KEY = 'wowMacroBuilder_saved';
+    const PICKER_STORAGE_KEY = 'wowMacroBuilder_picker';
+
+    const els = {
+      btnLocaleRu: document.getElementById('btnLocaleRu'),
+      btnLocaleEn: document.getElementById('btnLocaleEn'),
+      classSelect: document.getElementById('classSelect'),
+      specSelect: document.getElementById('specSelect'),
+      spellSelect: document.getElementById('spellSelect'),
+      spellFilter: document.getElementById('spellFilter'),
+      spellHint: document.getElementById('spellHint'),
+      spellName: document.getElementById('spellName'),
+      condExists: document.getElementById('condExists'),
+      condNodead: document.getElementById('condNodead'),
+      condHarm: document.getElementById('condHarm'),
+      condHelp: document.getElementById('condHelp'),
+      condCombat: document.getElementById('condCombat'),
+      condNoCombat: document.getElementById('condNoCombat'),
+      modifier: document.getElementById('modifier'),
+      showTooltip: document.getElementById('showTooltip'),
+      stopCasting: document.getElementById('stopCasting'),
+      useCastSequence: document.getElementById('useCastSequence'),
+      spellSequence: document.getElementById('spellSequence'),
+      sequenceField: document.getElementById('sequenceField'),
+      macroOutput: document.getElementById('macroOutput'),
+      charCount: document.getElementById('charCount'),
+      charWarn: document.getElementById('charWarn'),
+      savedList: document.getElementById('savedList'),
+      toast: document.getElementById('toast'),
+    };
+
+    const MODE_LABELS = {
+      target: 'Target',
+      focus: 'Focus',
+      focus_target: 'Focus → Target',
+      target_focus: 'Target → Focus',
+      mouseover: 'Mouseover',
+      player: 'Self',
+      mouseover_focus_target: 'Mouseover → Focus → Target',
+    };
+
+    let currentSpells = [];
+    let selectedSpellIdx = '';
+
+    const TARGET_DESC = {
+      target: '[@target]',
+      focus: '[@focus]',
+      focus_target: '[@focus,…][@target,…]',
+      target_focus: '[@target,…][@focus,…]',
+      mouseover: '[@mouseover]',
+      player: '[@player]',
+      mouseover_focus_target: '[@mouseover,…][@focus,…][@target,…]',
+    };
+
+    function applyUiLocale() {
+      const loc = getLocale();
+      document.documentElement.lang = loc;
+
+      document.getElementById('uiSubtitle').textContent = t('ui.subtitle');
+      document.getElementById('uiLocaleLabel').textContent = t('ui.localeLabel');
+      document.getElementById('uiSpellDb').textContent = t('ui.spellDb');
+      document.getElementById('uiClassLabel').textContent = t('ui.class');
+      document.getElementById('uiSpecLabel').textContent = t('ui.spec');
+      document.getElementById('uiSpellLabel').textContent = t('ui.spell');
+      document.getElementById('uiSearchLabel').textContent = t('ui.search');
+      document.getElementById('uiSpellSettings').textContent = t('ui.spellSettings');
+      document.getElementById('uiSpellNameLabel').textContent = t('ui.spellName');
+      document.getElementById('uiTargetModeLabel').textContent = t('ui.targetMode');
+      document.getElementById('uiConditionsLabel').textContent = t('ui.conditions');
+      document.getElementById('uiModifierLabel').textContent = t('ui.modifier');
+      document.getElementById('uiExtraLabel').textContent = t('ui.extra');
+      document.getElementById('uiSequenceLabel').textContent = t('ui.sequence');
+      document.getElementById('uiResult').textContent = t('ui.result');
+      document.getElementById('uiSaved').textContent = t('ui.saved');
+      els.spellName.placeholder = t('ui.spellNamePh');
+      els.spellFilter.placeholder = t('ui.searchPh');
+      els.spellSequence.placeholder = t('ui.sequencePh');
+      els.macroOutput.placeholder = t('ui.macroPh');
+      document.getElementById('modNone').textContent = t('ui.noMod');
+      document.getElementById('btnGenerate').textContent = t('ui.generate');
+      document.getElementById('btnCopy').textContent = t('ui.copy');
+      document.getElementById('btnSave').textContent = t('ui.save');
+      document.getElementById('btnExport').textContent = t('ui.export');
+      document.getElementById('btnClear').textContent = t('ui.clear');
+      els.btnLocaleRu.textContent = t('ui.localeRu');
+      els.btnLocaleEn.textContent = t('ui.localeEn');
+      els.btnLocaleRu.classList.toggle('active', loc === 'ru');
+      els.btnLocaleEn.classList.toggle('active', loc === 'en');
+
+      const tl = WOW_I18N[loc].ui.targetLabels;
+      document.querySelectorAll('.radio-item[data-mode]').forEach(el => {
+        const mode = el.dataset.mode;
+        const [title, desc] = tl[mode];
+        el.querySelector('.radio-text').innerHTML =
+          `<strong>${title}</strong> — ${desc}<span class="desc">${TARGET_DESC[mode]}</span>`;
+      });
+
+      document.querySelectorAll('#condGrid span[data-cond]').forEach(el => {
+        el.textContent = t(`ui.condLabels.${el.dataset.cond}`);
+      });
+
+      els.btnLocaleRu.classList.toggle('active', loc === 'ru');
+      els.btnLocaleEn.classList.toggle('active', loc === 'en');
+    }
+
+    function initClassSelect() {
+      const savedClass = els.classSelect.value;
+      const sorted = Object.entries(WOW_SPELLS_DB).sort((a, b) =>
+        getClassName(a[0]).localeCompare(getClassName(b[0]), getLocale())
+      );
+      els.classSelect.innerHTML = `<option value="">${t('ui.pickClass')}</option>` +
+        sorted.map(([id]) => `<option value="${id}">${getClassName(id)}</option>`).join('');
+      if (savedClass) els.classSelect.value = savedClass;
+    }
+
+    function populateSpecs(classId) {
+      const savedSpec = els.specSelect.value;
+      els.specSelect.innerHTML = `<option value="">${t('ui.pickSpec')}</option>`;
+      els.spellSelect.innerHTML = `<option value="">${t('ui.pickSpell')}</option>`;
+      els.specSelect.disabled = !classId;
+      els.spellSelect.disabled = true;
+      els.spellFilter.disabled = true;
+      els.spellFilter.value = '';
+      currentSpells = [];
+      selectedSpellIdx = '';
+
+      if (!classId) return;
+
+      const specs = WOW_SPELLS_DB[classId].specs;
+      const sorted = Object.entries(specs).sort((a, b) =>
+        getSpecName(a[0]).localeCompare(getSpecName(b[0]), getLocale())
+      );
+      els.specSelect.innerHTML += sorted.map(([id]) =>
+        `<option value="${id}">${getSpecName(id)}</option>`
+      ).join('');
+      if (savedSpec && specs[savedSpec]) els.specSelect.value = savedSpec;
+    }
+
+    function populateSpells(classId, specId, filter = '') {
+      const prevIdx = els.spellSelect.value;
+      els.spellSelect.innerHTML = `<option value="">${t('ui.pickSpell')}</option>`;
+      currentSpells = [];
+
+      if (!classId || !specId) {
+        els.spellSelect.disabled = true;
+        els.spellFilter.disabled = true;
+        return;
+      }
+
+      const spells = WOW_SPELLS_DB[classId].specs[specId].spells;
+      const q = filter.trim().toLowerCase();
+      currentSpells = q
+        ? spells.filter(s => {
+            const display = getSpellDisplayName(s).toLowerCase();
+            const cat = getCategoryLabel(s.category).toLowerCase();
+            return display.includes(q) || cat.includes(q);
+          })
+        : spells.slice();
+
+      els.spellSelect.disabled = currentSpells.length === 0;
+      els.spellFilter.disabled = false;
+
+      const grouped = {};
+      currentSpells.forEach((spell, idx) => {
+        if (!grouped[spell.category]) grouped[spell.category] = [];
+        grouped[spell.category].push({ spell, idx });
+      });
+
+      const categoryOrder = ['interrupt', 'cc', 'heal', 'buff', 'damage', 'defensive', 'utility'];
+      const categories = Object.keys(grouped).sort(
+        (a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b)
+      );
+
+      categories.forEach(cat => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = getCategoryLabel(cat);
+        grouped[cat].forEach(({ spell, idx }) => {
+          const opt = document.createElement('option');
+          opt.value = String(idx);
+          opt.textContent = getSpellDisplayName(spell);
+          optgroup.appendChild(opt);
+        });
+        els.spellSelect.appendChild(optgroup);
+      });
+
+      if (prevIdx !== '' && currentSpells[+prevIdx]) {
+        els.spellSelect.value = prevIdx;
+      } else if (selectedSpellIdx !== '' && currentSpells[+selectedSpellIdx]) {
+        els.spellSelect.value = selectedSpellIdx;
+      }
+
+      if (currentSpells.length === 0) {
+        els.spellHint.textContent = t('ui.hintNotFound');
+      }
+    }
+
+    function applySpellSuggestions(spell) {
+      if (!spell?.suggest) return;
+
+      const s = spell.suggest;
+      if (s.harm !== undefined) els.condHarm.checked = s.harm;
+      if (s.help !== undefined) els.condHelp.checked = s.help;
+      if (s.targetMode) {
+        const radio = document.querySelector(`input[name="targetMode"][value="${s.targetMode}"]`);
+        if (radio) radio.checked = true;
+      }
+    }
+
+    function onSpellSelected() {
+      const idx = els.spellSelect.value;
+      selectedSpellIdx = idx;
+      if (idx === '') {
+        els.spellHint.textContent = t('ui.hintPickSpell');
+        return;
+      }
+
+      const spell = currentSpells[+idx];
+      if (!spell) return;
+
+      const displayName = getSpellDisplayName(spell);
+      els.spellName.value = displayName;
+      const catLabel = getCategoryLabel(spell.category);
+      els.spellHint.innerHTML = `<strong>${displayName}</strong> — ${catLabel}. ${t('ui.hintApplied')}`;
+
+      applySpellSuggestions(spell);
+      generateMacro();
+    }
+
+    function switchLocale(locale) {
+      setLocale(locale);
+      applyUiLocale();
+      initClassSelect();
+      populateSpecs(els.classSelect.value);
+      populateSpells(els.classSelect.value, els.specSelect.value, els.spellFilter.value);
+      if (selectedSpellIdx !== '' && currentSpells[+selectedSpellIdx]) {
+        onSpellSelected();
+      } else {
+        els.spellHint.textContent = t('ui.hintDefault');
+      }
+      renderSaved();
+      generateMacro();
+    }
+
+    function savePickerState() {
+      localStorage.setItem(PICKER_STORAGE_KEY, JSON.stringify({
+        classId: els.classSelect.value,
+        specId: els.specSelect.value,
+      }));
+    }
+
+    function restorePickerState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(PICKER_STORAGE_KEY) || '{}');
+        if (saved.classId && WOW_SPELLS_DB[saved.classId]) {
+          els.classSelect.value = saved.classId;
+          populateSpecs(saved.classId);
+          if (saved.specId && WOW_SPELLS_DB[saved.classId].specs[saved.specId]) {
+            els.specSelect.value = saved.specId;
+            populateSpells(saved.classId, saved.specId);
+            const cls = getClassName(saved.classId);
+            const spec = getSpecName(saved.specId);
+            els.spellHint.textContent = `${cls} / ${spec} — ${t('ui.pickSpell')}`;
+          }
+        }
+      } catch { /* ignore */ }
+    }
+
+    function getTargetMode() {
+      return document.querySelector('input[name="targetMode"]:checked')?.value || 'target';
+    }
+
+    function buildConditions() {
+      const parts = [];
+      if (els.condExists.checked) parts.push('exists');
+      if (els.condNodead.checked) parts.push('nodead');
+      if (els.condHarm.checked) parts.push('harm');
+      if (els.condHelp.checked) parts.push('help');
+      if (els.condCombat.checked) parts.push('combat');
+      if (els.condNoCombat.checked) parts.push('nocombat');
+      return parts.join(',');
+    }
+
+    function unitCondition(unit) {
+      const cond = buildConditions();
+      return cond ? `[${unit},${cond}]` : `[${unit}]`;
+    }
+
+    function buildTargetUnits(mode) {
+      switch (mode) {
+        case 'target': return [unitCondition('@target')];
+        case 'focus': return [unitCondition('@focus')];
+        case 'focus_target': return [unitCondition('@focus'), unitCondition('@target')];
+        case 'target_focus': return [unitCondition('@target'), unitCondition('@focus')];
+        case 'mouseover': return [unitCondition('@mouseover')];
+        case 'player': return [unitCondition('@player')];
+        case 'mouseover_focus_target':
+          return [unitCondition('@mouseover'), unitCondition('@focus'), unitCondition('@target')];
+        default: return [unitCondition('@target')];
+      }
+    }
+
+    function buildCastLine(spell, mode) {
+      const units = buildTargetUnits(mode);
+      const prefix = els.modifier.value ? `[${els.modifier.value}]` : '';
+      const targetPart = prefix + units.join('');
+      return `/cast ${targetPart}${spell}`;
+    }
+
+    function generateMacro() {
+      const mode = getTargetMode();
+      const lines = [];
+
+      if (els.showTooltip.checked) {
+        lines.push('#showtooltip');
+      }
+
+      if (els.stopCasting.checked) {
+        lines.push('/stopcasting');
+      }
+
+      if (els.useCastSequence.checked) {
+        const seq = els.spellSequence.value.trim() || els.spellName.value.trim();
+        if (!seq) {
+          els.macroOutput.value = t('ui.errSeq');
+          updateCharCount();
+          return;
+        }
+        const units = buildTargetUnits(mode);
+        const prefix = els.modifier.value ? `[${els.modifier.value}]` : '';
+        lines.push(`/castsequence ${prefix}${units.join('')}${seq}`);
+      } else {
+        const spell = els.spellName.value.trim();
+        if (!spell) {
+          els.macroOutput.value = t('ui.errSpell');
+          updateCharCount();
+          return;
+        }
+        lines.push(buildCastLine(spell, mode));
+      }
+
+      els.macroOutput.value = lines.join('\n');
+      updateCharCount();
+    }
+
+    function updateCharCount() {
+      const text = els.macroOutput.value;
+      const len = text.length;
+      els.charCount.textContent = `${len} ${t('ui.chars')}`;
+
+      if (len === 0) {
+        els.charWarn.textContent = '';
+        els.charWarn.className = '';
+      } else if (len > 255) {
+        els.charWarn.textContent = t('ui.warnOver');
+        els.charWarn.className = 'warn';
+      } else {
+        els.charWarn.textContent = t('ui.okLimit');
+        els.charWarn.className = 'ok';
+      }
+    }
+
+    function showToast(msg) {
+      els.toast.textContent = msg;
+      els.toast.classList.add('show');
+      setTimeout(() => els.toast.classList.remove('show'), 2000);
+    }
+
+    async function copyMacro() {
+      const text = els.macroOutput.value;
+      if (!text) { showToast(t('ui.nothingCopy')); return; }
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast(t('ui.copied'));
+      } catch {
+        els.macroOutput.select();
+        document.execCommand('copy');
+        showToast(t('ui.copiedShort'));
+      }
+    }
+
+    function loadSaved() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveToStorage(list) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    }
+
+    function renderSaved() {
+      const list = loadSaved();
+      if (list.length === 0) {
+        els.savedList.innerHTML = `<div class="empty">${t('ui.savedEmpty')}</div>`;
+        return;
+      }
+
+      els.savedList.innerHTML = list.map((item, i) => `
+        <div class="saved-item">
+          <div class="info">
+            <div class="name">${escapeHtml(item.name)}</div>
+            <div class="mode">${escapeHtml(MODE_LABELS[item.mode] || item.mode)}</div>
+          </div>
+          <div class="actions">
+            <button class="btn-secondary" data-action="load" data-idx="${i}">${t('ui.load')}</button>
+            <button class="btn-secondary" data-action="copy" data-idx="${i}">${t('ui.copy')}</button>
+            <button class="btn-danger" data-action="delete" data-idx="${i}">${t('ui.delete')}</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    function saveCurrent() {
+      const spell = els.spellName.value.trim();
+      const macro = els.macroOutput.value.trim();
+      if (!spell || !macro) {
+        showToast(t('ui.saveFirst'));
+        return;
+      }
+      const list = loadSaved();
+      list.unshift({
+        name: spell,
+        mode: getTargetMode(),
+        macro,
+        created: Date.now(),
+      });
+      saveToStorage(list);
+      renderSaved();
+      showToast(t('ui.macroSaved'));
+    }
+
+    els.savedList.addEventListener('click', async (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const idx = +btn.dataset.idx;
+      const list = loadSaved();
+      const item = list[idx];
+      if (!item) return;
+
+      if (btn.dataset.action === 'delete') {
+        list.splice(idx, 1);
+        saveToStorage(list);
+        renderSaved();
+        return;
+      }
+
+      if (btn.dataset.action === 'load') {
+        els.spellName.value = item.name;
+        const radio = document.querySelector(`input[name="targetMode"][value="${item.mode}"]`);
+        if (radio) radio.checked = true;
+        els.macroOutput.value = item.macro;
+        updateCharCount();
+        showToast(t('ui.macroLoaded'));
+        return;
+      }
+
+      if (btn.dataset.action === 'copy') {
+        try {
+          await navigator.clipboard.writeText(item.macro);
+          showToast(t('ui.copiedShort'));
+        } catch {
+          showToast(t('ui.copyErr'));
+        }
+      }
+    });
+
+    document.getElementById('btnExport').addEventListener('click', () => {
+      const list = loadSaved();
+      if (list.length === 0) { showToast(t('ui.listEmpty')); return; }
+      const content = list.map((item, i) =>
+        `=== ${i + 1}. ${item.name} (${MODE_LABELS[item.mode]}) ===\n${item.macro}\n`
+      ).join('\n');
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'wow-macros.txt';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('btnClear').addEventListener('click', () => {
+      if (confirm(t('ui.confirmClear'))) {
+        saveToStorage([]);
+        renderSaved();
+      }
+    });
+
+    els.useCastSequence.addEventListener('change', () => {
+      els.sequenceField.style.display = els.useCastSequence.checked ? 'block' : 'none';
+    });
+
+    document.getElementById('btnGenerate').addEventListener('click', generateMacro);
+    document.getElementById('btnCopy').addEventListener('click', copyMacro);
+    document.getElementById('btnSave').addEventListener('click', saveCurrent);
+
+    ['spellName', 'spellSequence', 'modifier'].forEach(id => {
+      document.getElementById(id).addEventListener('input', generateMacro);
+    });
+
+    document.querySelectorAll('input[type="checkbox"], input[name="targetMode"]').forEach(el => {
+      el.addEventListener('change', generateMacro);
+    });
+
+    els.btnLocaleRu.addEventListener('click', () => switchLocale('ru'));
+    els.btnLocaleEn.addEventListener('click', () => switchLocale('en'));
+
+    els.classSelect.addEventListener('change', () => {
+      populateSpecs(els.classSelect.value);
+      savePickerState();
+      const classId = els.classSelect.value;
+      els.spellHint.textContent = classId
+        ? `${getClassName(classId)} — ${t('ui.pickSpec')}`
+        : t('ui.hintDefault');
+    });
+
+    els.specSelect.addEventListener('change', () => {
+      populateSpells(els.classSelect.value, els.specSelect.value, els.spellFilter.value);
+      savePickerState();
+      const classId = els.classSelect.value;
+      const specId = els.specSelect.value;
+      const spec = classId && specId ? WOW_SPELLS_DB[classId].specs[specId] : null;
+      els.spellHint.textContent = spec
+        ? `${getClassName(classId)} / ${getSpecName(specId)} — ${spec.spells.length} ${t('ui.hintSpellsInDb')}`
+        : t('ui.hintPickSpec');
+    });
+
+    els.spellSelect.addEventListener('change', onSpellSelected);
+
+    els.spellFilter.addEventListener('input', () => {
+      populateSpells(els.classSelect.value, els.specSelect.value, els.spellFilter.value);
+    });
+
+    applyUiLocale();
+    initClassSelect();
+    restorePickerState();
+    renderSaved();
+    generateMacro();
+  </script>
+</body>
+</html>

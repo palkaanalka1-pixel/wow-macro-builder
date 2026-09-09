@@ -72,4 +72,3 @@
 #showtooltip
 /cast [shift,@focus,exists,harm,nodead] Kick
 ```
-
